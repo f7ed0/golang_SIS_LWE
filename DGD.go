@@ -1,6 +1,7 @@
 package sis
 
 import (
+	"math"
 	"time"
 
 	"golang.org/x/exp/rand"
@@ -8,23 +9,22 @@ import (
 )
 
 type DiscreteGaussianDistribution struct {
-	distuv.Normal
+	normal distuv.Normal
+	Q      uint64
 }
 
 func NewDGD(q uint64, sigma float64) (d DiscreteGaussianDistribution) {
-	d = DiscreteGaussianDistribution{distuv.Normal{
-		Mu:    float64(q / 2),
-		Sigma: sigma,
-		Src:   rand.NewSource(uint64(time.Now().UnixMilli())),
-	}}
+	d = DiscreteGaussianDistribution{
+		Q: q,
+		normal: distuv.Normal{
+			Mu:    float64(q / 2),
+			Sigma: sigma,
+			Src:   rand.NewSource(uint64(time.Now().UnixNano())),
+		},
+	}
 	return
 }
 
 func (d DiscreteGaussianDistribution) Rand() uint64 {
-	v := rand.Float64()
-	i := 0.0
-	for v >= d.CDF(i) {
-		i++
-	}
-	return uint64(i - 1)
+	return uint64(math.Floor(d.normal.Rand())) % d.Q
 }
