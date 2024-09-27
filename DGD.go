@@ -10,12 +10,12 @@ import (
 
 type DiscreteGaussianDistribution struct {
 	normal distuv.Normal
-	Q      uint64
+	q      uint64
 }
 
 func NewDGD(q uint64, sigma float64) (d DiscreteGaussianDistribution) {
 	d = DiscreteGaussianDistribution{
-		Q: q,
+		q: q,
 		normal: distuv.Normal{
 			Mu:    float64(q / 2),
 			Sigma: sigma,
@@ -26,5 +26,5 @@ func NewDGD(q uint64, sigma float64) (d DiscreteGaussianDistribution) {
 }
 
 func (d DiscreteGaussianDistribution) Rand() uint64 {
-	return uint64(math.Floor(d.normal.Rand())) % d.Q
+	return uint64(math.Floor(d.normal.Rand())) % d.q
 }
