@@ -3,6 +3,7 @@ package sis
 import (
 	"crypto/sha512"
 	"hash"
+	"slices"
 	"sync"
 	"time"
 
@@ -15,18 +16,18 @@ type SIS struct {
 	src    distuv.Uniform
 	hasher hash.Hash
 	sync.RWMutex
-	n int
-	q int
-	m int
+	N int
+	Q int
+	M int
 }
 
 var Default SIS = NewSISSHA512(4099, 64, 1537)
 
 func NewSISSHA512(q, n, m int) (result SIS) {
 	result = SIS{
-		n:      n,
-		q:      q,
-		m:      m,
+		N:      n,
+		Q:      q,
+		M:      m,
 		hasher: sha512.New(),
 		src: distuv.Uniform{
 			Src: rand.NewSource(uint64(time.Now().UnixMilli())),
@@ -44,9 +45,9 @@ func (s *SIS) GenerateRandomInt() int {
 func (s *SIS) generateAMaxtrix() matrix.Matrix {
 	s.Lock()
 	defer s.Unlock()
-	A := matrix.NewZeroMatrix(s.n, s.m)
-	for i := range s.n {
-		for j := range s.m {
+	A := matrix.NewZeroMatrix(s.N, s.M)
+	for i := range s.N {
+		for j := range s.M {
 			A.Set(i, j, s.GenerateRandomInt())
 		}
 	}
@@ -55,9 +56,9 @@ func (s *SIS) generateAMaxtrix() matrix.Matrix {
 
 func (s *SIS) GenerateCheck(m []byte) (A_buff []int, v_buff []int, err error) {
 	hashed_m := s.generateHash(m)
-	x := matrix.BytesToColumn(hashed_m, s.q)
+	x := matrix.BytesToColumn(hashed_m, s.Q)
 	A := s.generateAMaxtrix()
-	v, err := A.MulMod(x, s.q)
+	v, err := A.MulMod(x, s.Q)
 	if err != nil {
 		return
 	}
@@ -71,11 +72,11 @@ func (s *SIS) GenerateCheck(m []byte) (A_buff []int, v_buff []int, err error) {
 
 func (s *SIS) generateHash(m []byte) (hash []byte) {
 	s.Lock()
-	hash = make([]byte, s.m)
+	hash = make([]byte, s.M)
 	s.hasher.Reset()
 	s.Unlock()
 	hashed_m := s.hasher.Sum(m)
-	for i := range s.m {
+	for i := range s.M {
 		hash[i] = hashed_m[i%len(hashed_m)]
 	}
 	return
@@ -84,12 +85,12 @@ func (s *SIS) generateHash(m []byte) (hash []byte) {
 func (s *SIS) Validate(m []byte, A_buff, v_buff []int) (ok bool, err error) {
 	ok = false
 	hashed_m := s.generateHash(m)
-	x := matrix.BytesToColumn(hashed_m, s.q)
-	A, err := matrix.IntsToA(A_buff, s.n, s.m)
+	x := matrix.BytesToColumn(hashed_m, s.Q)
+	A, err := matrix.IntsToA(A_buff, s.N, s.M)
 	if err != nil {
 		return
 	}
-	v, err := A.MulMod(x, s.q)
+	v, err := A.MulMod(x, s.Q)
 	if err != nil {
 		return
 	}
@@ -97,15 +98,6 @@ func (s *SIS) Validate(m []byte, A_buff, v_buff []int) (ok bool, err error) {
 	if err != nil {
 		return
 	}
-	ok = true
-	if len(v_buff) != len(vp_buff) {
-		return false, nil
-	}
-	for i := 0; i < len(v_buff) && i < len(vp_buff); i++ {
-		if v_buff[i] != vp_buff[i] {
-			ok = false
-			return
-		}
-	}
+	ok = slices.Equal(v_buff, vp_buff)
 	return
 }
