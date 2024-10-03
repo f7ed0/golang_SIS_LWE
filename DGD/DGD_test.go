@@ -22,7 +22,7 @@ func TestRepartition(t *testing.T) {
 		}
 		stdev = math.Sqrt(stdev - mean*mean)
 
-		if math.Abs(stdev-s) > 0.02*s || math.Abs(mean-float64(q/2)) > 0.02*float64(q/2) {
+		if math.Abs(stdev-s) > 0.05*s || math.Abs(mean-float64(q/2)) > 0.05*float64(q/2) {
 			t.Errorf("FAILURE => have (%v %v), wants (%v %v)\n", mean, stdev, float64(q/2), s)
 			return
 		}

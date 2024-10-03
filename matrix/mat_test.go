@@ -24,12 +24,12 @@ func TestMul(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	byt, err := c.LineToBytes()
+	byt, err := c.LineToInts()
 	if err != nil {
 		t.Error(err.Error())
 	}
 
-	if !slices.Equal(byt, []byte{17, 39}) {
+	if !slices.Equal(byt, []int{17, 39}) {
 		t.Errorf("slice not equal")
 	}
 }
