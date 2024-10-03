@@ -1,4 +1,4 @@
-package sis
+package dgd
 
 import (
 	"fmt"
