@@ -73,9 +73,9 @@ func (s *SIS) GenerateCheck(m []byte) (A_buff []int, v_buff []int, err error) {
 func (s *SIS) generateHash(m []byte) (hash []byte) {
 	s.Lock()
 	hash = make([]byte, s.M)
+	hashed_m := s.hasher.Sum(m)
 	s.hasher.Reset()
 	s.Unlock()
-	hashed_m := s.hasher.Sum(m)
 	for i := range s.M {
 		hash[i] = hashed_m[i%len(hashed_m)]
 	}
