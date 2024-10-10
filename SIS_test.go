@@ -78,17 +78,19 @@ func TestSerializationDeserialization(t *testing.T) {
 			t.Errorf("Error during deserialization : %s", err.Error())
 		}
 		if !slices.Equal(A_buff, A_debuff) {
-			t.Error("Not valid")
+			t.Error("A is not valid")
+			return
 		}
 		if !slices.Equal(v_buff, v_debuff) {
-			t.Error("Not valid")
+			t.Error("v is not valid")
+			return
 		}
 		ok, err := Default.Validate(message, A_debuff, v_debuff)
 		if err != nil {
 			t.Error(err.Error())
 		}
 		if !ok {
-			t.Error("Not valid")
+			t.Error("check not valid")
 		}
 	}
 }

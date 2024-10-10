@@ -6,15 +6,11 @@ import (
 )
 
 func SerializeInts(ints []int) (buffer []byte) {
-	buffer = make([]byte, len(ints)*2)
-	interbuff := make([]byte, len(ints)*2)
-	compteur := 0
+	buffer = make([]byte, 0)
+	interbuff := make([]byte, len(ints)*4)
 	for _, el := range ints {
 		n := binary.PutVarint(interbuff, int64(el))
-		for j := range n {
-			buffer[compteur] = interbuff[j]
-			compteur++
-		}
+		buffer = append(buffer, interbuff[:n]...)
 	}
 	return
 }
