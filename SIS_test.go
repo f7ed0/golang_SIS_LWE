@@ -77,8 +77,30 @@ func TestSerializationDeserialization(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error during deserialization : %s", err.Error())
 		}
-
-		slices.Equal(A_buff, A_debuff)
-		slices.Equal(v_buff, v_debuff)
+		if !slices.Equal(A_buff, A_debuff) {
+			t.Error("Not valid")
+		}
+		if !slices.Equal(v_buff, v_debuff) {
+			t.Error("Not valid")
+		}
+		ok, err := Default.Validate(message, A_debuff, v_debuff)
+		if err != nil {
+			t.Error(err.Error())
+		}
+		if !ok {
+			t.Error("Not valid")
+		}
 	}
 }
+
+/*
+func TestAled(t *testing.T) {
+	var message []byte = make([]byte, _rand.Intn(1024))
+	A_buff, v_buff, err := Default.GenerateCheck(message)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Println(A_buff)
+	fmt.Print(v_buff)
+}
+*/
